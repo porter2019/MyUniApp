@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>自动认证中...</title>
+		<style>
+			.account {
+				display: none;
+				width: 100%;
+				height: 100vh;
+				padding: 20px;
+			}
+
+			.top {
+				width: 100%;
+				height: 24px;
+				text-align: center;
+				color: red;
+				margin-top: 40px;
+				font-size: 30px;
+			}
+		</style>
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+		<script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+	</head>
+
+	<body>
+		<div class="account">
+			<div class="top" id="topInfo">OpenId: ----State：</div>
+
+			<div>
+				<button onclick="goMini()">跳转回小程序</button>
+				<button onclick="openMPArtict()">打开公众号文章</button>
+			</div>
+			<div>
+				<div class="top" id="articleStatus">是否打开了文章：无</div>
+				<button onclick="artSet()">设置缓存</button>
+				<button onclick="artDel()">清除缓存</button>
+				<button onclick="artJudge()">判断缓存</button>
+			</div>
+		</div>
+
+		<script>
+			//公众号的appId
+			const mpAppId = 'wxe52437ae14dc11cb'
+			//后台接口地址
+			const bindUrl = 'https://api.domain.com/api/account/wx/mp/bind'
+			const Has_Open_Articel_Key = 'HasOpenArticle';
+
+			$(document).ready(function() {
+				const code = getQueryVariable('code');
+				const userId = getQueryVariable('state');
+				$('#topInfo').text(`Code: ${code}----State：${userId}`);
+
+				if (userId) {
+					if (code) {
+						doBind(code, userId);
+					} else {
+						artSet();
+						console.log('前往授权获取code');
+						// 获取当前路径，不带参数
+						let ourUrl = window.location.origin + window.location.pathname // 'https://域名/weixin.html';
+						let url =
+							`https://open.weixin.qq.com/connect/oauth2/authorize?appid=${mpAppId}&redirect_uri=${encodeURIComponent(ourUrl)}&response_type=code&scope=snsapi_base&state=${userId}#wechat_redirect`
+						window.location.href = url;
+					}
+				} else {
+					// $(".account").hide();
+					// alert('ERROR');
+				}
+			});
+			// 根据code换取openid，然后和用户绑定
+			function doBind(code, userId) {
+				$.ajax({
+					url: bindUrl,
+					type: 'GET',
+					data: {
+						code: code,
+						userId: userId
+					},
+					success: function(data) {
+						// goMini()
+						openMPArtict();
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						console.error("Error:", textStatus, errorThrown);
+						alert('网络错误');
+					}
+				});
+			}
+
+			function goMini() {
+				artDel();
+				// alert('即将进入小程序');
+				wx.miniProgram.redirectTo({
+					url: '/pages/mine/mine'
+				});
+			}
+
+			function openMPArtict() {
+				//打开公众号文章地址，提示用户关注公众号
+				window.location.href = 'https://mp.weixin.qq.com/s/YOvN4AEJEv-l2x42MjJMAA'
+			}
+
+			function artSet() {
+				localStorage.setItem(Has_Open_Articel_Key, '1');
+				updateArticleStatus();
+			}
+
+			function artDel() {
+				localStorage.removeItem(Has_Open_Articel_Key);
+				updateArticleStatus();
+			}
+
+			function artJudge() {
+				updateArticleStatus();
+				if (localStorage.getItem(Has_Open_Articel_Key)) {
+					alert('为真');
+				} else {
+					alert('为假');
+				}
+			}
+			window.addEventListener('pageshow', function(event) {
+				if (event.persisted) {
+					//微信从前一个页面返回到当前页面后会触发这个方法，IOS下有效，Android无效
+					//保险起见，还是当用户点击了前往绑定的按钮，就uni.setStorageSync('hasOpenAuth', 1)，当页面onShow的时候判断有没有这个值，有的话就重新拉取一下用户信息
+					//如果打开过文章，则就回到小程序
+					if (localStorage.getItem(Has_Open_Articel_Key)) {
+						goMini();
+					}
+				} else {
+					console.log("页面初次加载或刷新后显示");
+				}
+			});
+
+			function updateArticleStatus() {
+				let status = localStorage.getItem(Has_Open_Articel_Key) ? '是' : '否';
+				$('#articleStatus').text(`是否打开了文章：${status}`);
+			}
+
+			function getQueryVariable(variable) {
+				var query = window.location.search.substring(1);
+				var vars = query.split('&');
+				for (var i = 0; i < vars.length; i++) {
+					var pair = vars[i].split('=');
+					if (pair[0] == variable) {
+						return decodeURIComponent(pair[1]);
+					}
+				}
+				return null;
+			}
+		</script>
+	</body>
+
+</html>

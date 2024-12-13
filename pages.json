@@ -1,0 +1,119 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "首页"
+			}
+		},
+		{
+			"path": "pages/account/login",
+			"alias": "login",
+			"style": {
+				"navigationBarBackgroundColor": "#B29687", // 导航栏背景颜色
+				"navigationBarTitleText": "登录",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/mine/mine",
+			"style": {
+				"navigationBarTitleText": "我的"
+			}
+		},
+		{
+			"path": "pages/sys/sys",
+			"style": {
+				"navigationBarTitleText": "管理员才能看到"
+			}
+		}
+	],
+	"subPackages": [{
+		"root": "pagesX",
+		"pages": [{
+				"path": "index/index",
+				"style": {
+					"navigationBarTitleText": "演示-首页"
+				}
+			},
+			{
+				"path": "pagelist/simple",
+				"style": {
+					"navigationBarTitleText": "简单列表"
+				}
+			},
+			{
+				"path": "pagelist/more-tab",
+				"style": {
+					"navigationBarTitleText": "多tab"
+				}
+			},
+			{
+				"path": "pagelist/swiper-tab/swiper-tab",
+				"style": {
+					"navigationBarTitleText": "滑动tab",
+					"enablePullDownRefresh": false
+				}
+			},
+			{
+				"path": "form/index",
+				"style": {
+					"navigationBarTitleText": "列表页"
+				}
+			},
+			{
+				"path": "form/show",
+				"style": {
+					"navigationBarTitleText": "详情页"
+				}
+			},
+			{
+				"path": "form/edit",
+				"style": {
+					"navigationBarTitleText": "编辑页"
+				}
+			},
+			{
+				"path" : "webview/webview",
+				"style" : 
+				{
+					"navigationBarTitleText" : ""
+				}
+			}
+		]
+	}],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar": {
+		"color": "#8a8a8a",
+		"selectedColor": "#177AD2",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"iconWidth": "20px",
+		"list": [{
+				"pagePath": "pages/index/index"
+			},
+			{
+				"pagePath": "pages/mine/mine"
+			},
+			{
+				"pagePath": "pages/sys/sys"
+			}
+		]
+		// "list": [{
+		// 	"text": "首页",
+		// 	"pagePath": "pages/index/index",
+		// 	"iconPath": "static/tabbar/home.png",
+		// 	"selectedIconPath": "static/tabbar/home-selected.png"
+		// }, {
+		// 	"text": "我的",
+		// 	"pagePath": "pages/mine/mine",
+		// 	"iconPath": "static/tabbar/user.png",
+		// 	"selectedIconPath": "static/tabbar/user-selected.png"
+		// }]
+	}
+}
