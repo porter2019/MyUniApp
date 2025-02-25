@@ -19,7 +19,7 @@
 					</u-form-item>
 				</u--form>
 				<view class="btn-login">
-					<u-button type="default" class="btn-login" @click="login" text="立即登录">
+					<u-button type="default" class="btn-login" @click="login" text="立即登录" :throttleTime="1000">
 					</u-button>
 				</view>
 				<!-- #ifdef MP-WEIXIN -->

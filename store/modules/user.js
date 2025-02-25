@@ -10,7 +10,7 @@ export const getters = {
 		return state.token ? true : false
 	},
 	is_login: (state) => {
-		return Object.keys(state.user_info).length > 0 && state.permissions.length > 0
+		return Object.keys(state.user_info || {}).length > 0 && state.permissions.length > 0
 	},
 	user_info: (state) => {
 		return state.user_info

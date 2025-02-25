@@ -23,6 +23,12 @@
 					</u--input>
 					<!-- #endif -->
 				</u-form-item>
+				<u-form-item label="名称" prop="Name" required borderBottom>
+					<u--input v-model="formData.Name" placeholder="请输入"></u--input>
+				</u-form-item>
+				<u-form-item label="车辆类型" prop="CarType" @click.native="carTypeShow=true" borderBottom>
+					<u--input v-model="formData.CarType" readonly placeholder="请选择" suffixIcon="arrow-down"></u--input>
+				</u-form-item>
 				<u-form-item label="手机号" prop="CellPhone" borderBottom>
 					<u--input v-model="formData.CellPhone" fontSize="13" maxlength="11" prefixIcon="phone-fill"
 						placeholder="请输入手机号码"></u--input>
@@ -45,11 +51,15 @@
 						</u-checkbox>
 					</u-checkbox-group>
 				</u-form-item>
-				<u-form-item label="日期" prop="LiveTime" borderBottom @click="showLiveTimePicker = true; hideKeyboard()">
-					<u--input v-model="formData.LiveTime" disabled Color="#ffffff" fontSize="13" placeholder="请选择"
-						border="none"></u--input>
-					<u-icon slot="right" name="arrow-right"></u-icon>
-
+				<u-form-item label="预约日期" prop="AppointmentTime"
+					@click.native="showLiveTimePicker = true; hideKeyboard();" required borderBottom>
+					<u--input v-model="formData.AppointmentTime" readonly placeholder="请选择"
+						suffixIcon="arrow-down"></u--input>
+				</u-form-item>
+				<u-form-item label="日期范围" prop="AppointmentTime2"
+					@click.native="calendarInfo.show = true; hideKeyboard();" required borderBottom>
+					<u--input v-model="formData.AppointmentTime2" readonly placeholder="请选择"
+						suffixIcon="arrow-down"></u--input>
 				</u-form-item>
 				<u-form-item label="备注">
 					<u-textarea v-model="formData.CancelDesc" maxlength="500" placeholder="取消时必填"></u-textarea>
@@ -57,7 +67,7 @@
 			</u--form>
 
 			<view class="btns">
-				<u-button type="primary" shape="circle" hairline @click="onSave">保存</u-button>
+				<u-button type="primary" shape="circle" hairline @click="onSave" :throttleTime="1000">保存</u-button>
 				<u-button shape="circle" hairline @click="goBack()">取消</u-button>
 			</view>
 		</view>
@@ -65,8 +75,15 @@
 		<u-picker :show="orgPickerShow" :columns="orgOptions" keyName="Name" @close="orgPickerShow=false"
 			@cancel="orgPickerShow=false" @confirm="onOrgPick"></u-picker>
 
+		<u-picker :show="carTypeShow" :columns="carTypeOptions" @close="carTypeShow=false" @cancel="carTypeShow=false"
+			@confirm="onCarTypeConfirm"></u-picker>
+
 		<u-datetime-picker :show="showLiveTimePicker" :value="tempLiveTime" mode="datetime" closeOnClickOverlay
 			@confirm="tempLiveTimeConfirm" @cancel="tempLiveTimeClose" @close="tempLiveTimeClose"></u-datetime-picker>
+
+		<u-calendar :show="calendarInfo.show" :mode="calendarInfo.mode" :maxRange="calendarInfo.maxRange"
+			:minDate="calendarInfo.minDate" :maxDate="calendarInfo.maxDate" :allowSameDay="calendarInfo.allowSameDay"
+			@confirm="calendarConfirm" @close="calendarInfo.show=false"></u-calendar>
 	</view>
 </template>
 
@@ -83,7 +100,7 @@
 				id: 0,
 				showLiveTimePicker: false,
 				tempLiveTime: Number(new Date()),
-				formData: {
+				formData: { //必须给一个初始属性，表单中的某一项
 					Id: 0,
 					CellPhone: '',
 					IsOK: true,
@@ -96,6 +113,14 @@
 						type: 'string',
 						required: true,
 						message: '请选择',
+						trigger: ['blur', 'change']
+					}],
+					Name: [{
+						type: 'string',
+						min: 2,
+						max: 30,
+						required: true,
+						message: '请输入',
 						trigger: ['blur', 'change']
 					}],
 					CellPhone: [{
@@ -158,7 +183,7 @@
 						name: '爬山',
 						disabled: false
 					}
-				],				
+				],
 				// 组织机构
 				orgPickerShow: false,
 				orgOptions: [
@@ -173,11 +198,29 @@
 						Name: "组织3"
 					}]
 				],
+				// 车辆类型
+				carTypeShow: false,
+				carTypeOptions: [
+					['普通货车', '厢式货车', '集装箱车', '罐式车', '其他']
+				],
+				//日期范围筛选
+				calendarShowText: '请选择',
+				calendarInfo: {
+					show: false,
+					mode: "range",
+					maxRange: 32, //两个日期间隔最大天数
+					minDate: '', //可选最小天数2024-12-12
+					maxDate: '', //可选最大天数2024-12-22
+					allowSameDay: true, //允许两个日期选择同一天
+				},
 			}
 		},
 		onLoad(option) {
 			console.log(1);
 			this.id = Number(option.id || 0)
+			//日历开始和结束时间
+			this.calendarInfo.minDate = this.$u.func.addDate(-31);
+			this.calendarInfo.maxDate = this.$u.func.addDate(0);
 		},
 		onReady() {
 			console.log(2);
@@ -185,13 +228,16 @@
 		},
 		mounted() {
 			console.log(3);
+			this.getDataInfo();
 		},
-		methods: {
+		methods: {			
 			getDataInfo() {
-				console.log('进入');
+				uni.showLoading({
+					title: "加载中...",
+				})
 				uni.$u.http.get('/api/CarInfo/get/info', {
 					params: {
-						id: this.dataId
+						id: this.id
 					}
 				}).then(res => {
 					this.formData = res.Data || {}
@@ -208,6 +254,7 @@
 						"src": "http://localhost:6100/uploads/bridge1/95d1417ae8174e1ab58adf209528d1b9.jpg",
 						"FileName": "文件名AAAAA.jpg",
 					}]
+					uni.hideLoading();
 				})
 			},
 			onSave() {
@@ -218,23 +265,24 @@
 					}
 					this.formData.Id = this.dataId
 					uni.showLoading({
-						title: "操作中...",
+						title: "保存中...",
 					})
 					setTimeout(() => {
 						console.log('发送请求...', this.formData);
 						uni.hideLoading()
-						this.$u.toast('操作成功')
-						this.$emit('reLoad')
-						this.onClose()
+						this.$u.toast('保存成功')
+						uni.$emit('SysOrg-Index-Reload')
+						this.goBack()
 					}, 2000)
-					// uni.$u.http.post('/api/om/buyplancontent/set/confirmflag', this.formData).then(res => {
+					// const urlAction = this.id > 0 ? 'edit' : 'add';
+					// uni.$u.http.post(`/api/SysOrg/${urlAction}`, this.formData).then(res => {
 					// 	uni.hideLoading()
-					// 	this.$u.toast('操作成功')
-					// 	this.$emit('reLoad')
-					// 	this.onClose()
+					// 	this.$u.toast('保存成功')
+					// 	uni.$emit('SysOrg-Index-Reload')
+					// 	this.goBack()
 					// })
 				}).catch(errors => {
-					uni.$u.toast('内容校验不通过')
+					uni.$u.toast('内容输入有误')
 				})
 
 			},
@@ -247,6 +295,13 @@
 				this.formData.LiveTime = uni.$u.timeFormat(e.value, 'yyyy-mm-dd hh:MM')
 				this.$refs.mainForm.validateField('LiveTime')
 			},
+			calendarConfirm(e) {
+				this.calendarInfo.show = !this.calendarInfo.show;
+				if (e.length > 1) {
+					this.formData.LiveTime2 = `${e[0]};${e[e.length -1]}`;
+					this.calendarShowText = `${e[0]} 至 ${e[e.length -1]}`;
+				}
+			},
 			onOrgPick(val) {
 				if (val.value.length > 0) {
 					if (val.value[0].Id != this.formData.OrgId) {
@@ -255,6 +310,12 @@
 					} else {
 						this.orgPickerShow = false
 					}
+				}
+			},
+			onCarTypeConfirm(val) {
+				if (val.value.length > 0) {
+					this.formData.CarType = val.value[0]
+					this.carTypeShow = false;
 				}
 			},
 			checkBoxChange(e) {

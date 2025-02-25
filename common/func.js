@@ -169,10 +169,44 @@ const install = (Vue, vm) => {
 	}
 
 	function addDate(days) {
-		var d = new Date();
-		d.setDate(d.getDate() + days);
-		var m = d.getMonth() + 1;
-		return d.getFullYear() + '-' + m + '-' + d.getDate();
+		const date = new Date();
+		date.setDate(date.getDate() + days);
+
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+
+		return `${year}-${month}-${day}`;
+	}
+
+	/**
+	 * 复制内容到剪贴板
+	 * @param {data} 复制的内容
+	 * @param {msg}  复制完后的提示语
+	 */
+	const copyData = (data, msg) => {
+		const message = msg ? msg + '已复制！' : '内容已复制';
+		uni.setClipboardData({
+			data: data,
+			success: function() {
+				uni.showToast({
+					title: message
+				})
+			}
+		})
+	}
+
+	/**
+	 * 从接口的Extras中获取某项下拉列表的options
+	 * this.busTypeOptions.push(this.$u.func.getEnumOptions(res.Extras.Enums, "BusType"));
+	 */
+	const getEnumOptions = (data, name) => {
+		let search = (data || []).filter(item => {
+			if (item.Name == name) {
+				return item
+			}
+		})
+		return search.length == 0 ? [] : search[0].Options
 	}
 
 	// 将各个定义的方法，统一放进对象挂载到vm.$u.func(因为vm就是this，也即this.$u.func)下
@@ -185,6 +219,8 @@ const install = (Vue, vm) => {
 		disablePageSlide,
 		enablePageSlide,
 		addDate,
+		copyData,
+		getEnumOptions,
 	}
 }
 

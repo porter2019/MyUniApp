@@ -58,7 +58,7 @@
 				</view>
 				<view class="foot-dialog">
 					<u-button @click="onClose">取消</u-button>
-					<u-button type="primary" @click="onSave">确定</u-button>
+					<u-button type="primary" @click="onSave" :throttleTime="1000">确定</u-button>
 				</view>
 
 				<u-picker :show="orgPickerShow" :columns="orgOptions" keyName="Name" @close="orgPickerShow=false"

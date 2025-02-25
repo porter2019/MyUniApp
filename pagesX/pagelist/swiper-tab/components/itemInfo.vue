@@ -77,8 +77,8 @@
 			getDataList(pageNo, pageSize) {
 				// 组件加载时会自动触发此方法，因此默认页面加载时会自动触发，无需手动调用
 				// 这里的pageNo和pageSize会自动计算好，直接传给服务器即可
-				this.pageQuery.PageSize = pageSize
-				this.pageQuery.PageIndex = pageNo
+				this.pageQuery.PageInfo.PageSize = pageSize
+				this.pageQuery.PageInfo.PageIndex = pageNo
 				this.pageQuery.Tab = this.tabIndex
 				this.pageQuery.Word = this.searchWord
 				this.$u.func.removeJsonEmptyValueKey(this.pageQuery)

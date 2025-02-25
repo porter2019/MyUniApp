@@ -5,15 +5,15 @@
 			<template #top>
 				<view class="search-box">
 					<view class="search">
-						<u-search placeholder="请输入搜索内容" :height="32" :showAction="true" action-text="搜索"
-							:animation="true" v-model="pageQuery.KeyWord" @search="onSearchWord" @custom="onSearchWord"
-							@clear="onSearchWord"></u-search>
+						<u-search placeholder="请输入搜索内容" :height="32" shape="square" :showAction="false" height="40px"
+							bgColor="#FFF" v-model="pageQuery.KeyWord" @search="$refs.paging.reload();"
+							@clear="pageQuery.KeyWord = '';$refs.paging.reload();"></u-search>
 					</view>
 				</view>
 			</template>
 			<u-gap height="10"></u-gap>
 			<!-- 如果希望其他view跟着页面滚动，可以放在z-paging标签内 -->
-			<view class="list-data">
+			<view v-if="dataList.length>0" class="list-data">
 				<view class="item" v-for="(item,index) in dataList" :key="index" @click="onItemClick(item)">
 					<view class="item-title">{{item.SysUserName}}</view>
 					<view class="item-title">{{item.SysUserPhone}}</view>
@@ -21,6 +21,9 @@
 					<view class="item-line"></view>
 				</view>
 			</view>
+			<u-empty v-else mode="list" marginTop="100" text="没有相关数据">
+			</u-empty>
+			<u-gap height="40"></u-gap>
 		</myPaging>
 	</view>
 </template>
@@ -44,6 +47,14 @@
 				dataList: [], // v-model绑定的这个变量不要在分页请求结束中自己赋值！！！
 				flagOptions: []
 			}
+		},
+		onLoad() {
+			uni.$on('SysOrg-Index-Reload', () => {
+				this.$refs.paging.reload()
+			});
+		},
+		onUnload() {
+			uni.$off('SysOrg-Index-Reload');
 		},
 		methods: {
 			getDataList(pageNo, pageSize) {
@@ -73,9 +84,6 @@
 				this.$u.func.routeTo('/pagesX/form/show', {
 					id: item.Id
 				})
-			},
-			onSearchWord() {
-				this.$refs.paging.reload(true);
 			}
 		}
 	}
@@ -114,11 +122,12 @@
 		padding: 12rpx 20rpx;
 		font-size: 24rpx;
 	}
-	
-	.list-data{
+
+	.list-data {
 		margin-top: 20rpx;
 		background-color: #FFF;
 	}
+
 	.item {
 		background-color: #FFF;
 		position: relative;

@@ -11,7 +11,7 @@
 						车牌号
 					</u-col>
 					<u-col span="8" textAlign="right">
-						{{ formData.PlantNum }}
+						{{ formData.PlantNum || '' }}
 					</u-col>
 				</u-row>
 				<u-row align="top">
@@ -19,7 +19,7 @@
 						车辆编号
 					</u-col>
 					<u-col span="8" textAlign="right">
-						{{ formData.Code }}
+						{{ formData.Code || '' }}
 					</u-col>
 				</u-row>
 				<u-row align="top">
@@ -27,7 +27,7 @@
 						司机信息
 					</u-col>
 					<u-col span="8" textAlign="right">
-						{{ formData.SysUserName }}/{{ formData.SysUserPhone }}
+						{{ formData.SysUserName || '' }}/{{ formData.SysUserPhone || '' }}
 					</u-col>
 				</u-row>
 				<u-row align="top">
@@ -50,10 +50,34 @@
 				</u-row>
 				<u-row align="top">
 					<u-col span="4">
+						最后修改人
+					</u-col>
+					<u-col span="8" textAlign="right">
+						{{ formData.UpdatedUserName || '' }}
+					</u-col>
+				</u-row>
+				<u-row align="top">
+					<u-col span="4">
+						最后修改时间
+					</u-col>
+					<u-col span="8" textAlign="right">
+						{{ formData.UpdatedTime | date('yyyy-mm-dd hh:MM') }}
+					</u-col>
+				</u-row>
+				<u-row align="top">
+					<u-col span="4">
+						创建人
+					</u-col>
+					<u-col span="8" textAlign="right">
+						{{ formData.CreatedUserName || '' }}
+					</u-col>
+				</u-row>
+				<u-row align="top">
+					<u-col span="4">
 						创建时间
 					</u-col>
 					<u-col span="8" textAlign="right">
-						{{ formData.CreatedTime | date('yyyy-mm-dd hh:MM') }} <!-- 只要日期可以使用date -->
+						{{ formData.CreatedTime | date('yyyy-mm-dd hh:MM') }}
 					</u-col>
 				</u-row>
 			</view>
@@ -127,12 +151,15 @@
 		},
 		methods: {
 			getDataInfo() {
+				uni.showLoading({
+					title: "加载中...",
+				})
 				uni.$u.http.get('/api/CarInfo/get/info', {
 					params: {
 						id: this.dataId
 					}
 				}).then(res => {
-					this.formData = res.Data || {}
+					this.formData = res.Data || {};
 					this.formData.Remark =
 						'此组件一般需要搭配Form组件使用，也可以单独搭配Input等组件使用，由于此组件参数较多，这里只对其中参数最简要介绍，其余请见底部的API说明：';
 					this.formData.AttachList = [{
@@ -145,11 +172,17 @@
 						"FileWebPath": "http://localhost:6100/uploads/bridge1/95d1417ae8174e1ab58adf209528d1b9.jpg",
 						"src": "http://localhost:6100/uploads/bridge1/95d1417ae8174e1ab58adf209528d1b9.jpg",
 						"FileName": "文件名AAAAA.jpg",
-					}]
+					}];
+					uni.hideLoading();
 				})
 			},
-			goEdit(){
-				this.$u.func.routeTo('/pagesX/form/edit',{id:this.dataId})
+			goEdit() {
+				this.$u.func.routeTo('/pagesX/form/edit', {
+					id: this.dataId
+				})
+				// uni.$u.route('/pagesX/form/edit', {
+				// 	id: this.dataId
+				// });
 			},
 			goBack() {
 				uni.navigateBack()
@@ -159,5 +192,5 @@
 </script>
 
 <style lang="scss">
-	
+
 </style>

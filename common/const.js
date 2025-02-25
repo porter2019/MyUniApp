@@ -9,7 +9,7 @@ const install = (Vue, vm) => {
 	const UploadAction = config.baseUrl + '/api/file/upload'
 	
 	// 是不是有效的手机号
-	const RegEx_CellPhone = /^[1][3,4,5,7,8,9][0-9]{9}$/
+	const RegEx_CellPhone = /^[1][3,4,5,6,7,8,9][0-9]{9}$/
 	// 是不是有效的金额，不允许为负，支持小数点两位
 	const RegEx_Money = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/
 	// 是不是有效的金额，不允许为负，支持小数点三位

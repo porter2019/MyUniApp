@@ -97,8 +97,8 @@
 				// 这里的pageNo和pageSize会自动计算好，直接传给服务器即可
 				// 模拟请求服务器获取分页数据，请替换成自己的网络请求
 				this.$u.func.removeJsonEmptyValueKey(this.pageQuery)
-				this.pageQuery.PageSize = pageSize
-				this.pageQuery.PageIndex = pageNo
+				this.pageQuery.PageInfo.PageSize = pageSize
+				this.pageQuery.PageInfo.PageIndex = pageNo
 				this.pageQuery.tab = this.tabIndex
 				uni.$u.http.post('/api/CarInfo/get/pagelist', this.pageQuery).then(res => {
 					this.$refs.paging.complete(res.Data.Items);
